@@ -90,6 +90,7 @@ class ArticleReportPlugin extends ReportPlugin {
 		while ($submission = $submissions->next()) {
 			$publication = $submission->getCurrentPublication();
 			$maxAuthors = max($maxAuthors, count($publication->getData('authors')));
+			//$maxAuthors = 10;
 			$editDecisions = $editDecisionDao->getEditorDecisions($submission->getId());
 			$statusMap = $submission->getStatusMap();
 

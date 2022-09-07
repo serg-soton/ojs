@@ -56,11 +56,14 @@
 										{translate key="site.journalView"}
 									</a>
 								</li>
+{* ICEC: we do not want this *}
+{*
 								<li class="current">
 									<a href="{url|escape journal=$journal->getPath() page="issue" op="current"}">
 										{translate key="site.journalCurrent"}
 									</a>
 								</li>
+*}
 							</ul>
 						</div>
 					</li>

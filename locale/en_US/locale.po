@@ -1425,7 +1425,7 @@ msgid "site.journalsHosted"
 msgstr "Journals hosted on this site"
 
 msgid "site.journalView"
-msgstr "View Journal"
+msgstr "Go to site"
 
 msgid "site.journalRegister"
 msgstr "Register"
