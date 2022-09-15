@@ -68,6 +68,7 @@ class ArticleReportPlugin extends ReportPlugin {
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO'); /* @var $userGroupDao UserGroupDAO */
 		$userDao = DAORegistry::getDAO('UserDAO'); /* @var $userDao UserDAO */
 		$sectionDao = DAORegistry::getDAO('SectionDAO'); /* @var $sectionDao SectionDAO */
+		$categoryDao = DAORegistry::getDAO('CategoryDAO'); /* @var $categoryDao CategoryDAO */
 		$submissionKeywordDao = DAORegistry::getDAO('SubmissionKeywordDAO'); /* @var $submissionKeywordDao SubmissionKeywordDAO */
 		$submissionSubjectDao = DAORegistry::getDAO('SubmissionSubjectDAO'); /* @var $submissionSubjectDao SubmissionSubjectDAO */
 		$submissionDisciplineDao = DAORegistry::getDAO('SubmissionDisciplineDAO'); /* @var $submissionDisciplineDao SubmissionDisciplineDAO */
@@ -128,6 +129,20 @@ class ArticleReportPlugin extends ReportPlugin {
 				$section = $sectionDao->getById($sectionId);
 				$sectionTitles[$sectionId] = $section->getLocalizedTitle();
 			}
+			
+			// Load category title information
+			$publicationCategoryIDs = $publicationCategoryTitles = [];
+			$publicationCategoryFactory = $categoryDao->getByPublicationId($submission->getCurrentPublication()->getId());
+			while ($publicationCategory = $publicationCategoryFactory->next()) {
+				$publicationCategoryIDs[] = $publicationCategory->getId();
+			}
+			foreach ($publicationCategoryIDs as $categoryID) {
+			$title = $categoryDao->getById($categoryID)->getLocalizedTitle();
+			if ($categoryDao->getById($categoryID)->getParentId()) {
+				$title = $categoryDao->getById($categoryDao->getById($categoryID)->getParentId())->getLocalizedTitle() . ' > ' . $title;
+			}
+			$publicationCategoryTitles[(int) $categoryID] = $title;	
+			}
 
 			// Get the controlled vocabulary data
 			$subjects = $submissionSubjectDao->getSubjects($submission->getCurrentPublication()->getId());
@@ -153,6 +168,7 @@ class ArticleReportPlugin extends ReportPlugin {
 					];
 				}, $publication->getData('authors')),
 				'sectionTitle' => $sectionTitles[$sectionId],
+				'categories' => join('+++', $publicationCategoryTitles),
 				'language' => $publication->getData('locale'),
 				'coverage' => $publication->getLocalizedData('coverage'),
 				'rights' => $publication->getLocalizedData('rights'),
@@ -196,6 +212,7 @@ class ArticleReportPlugin extends ReportPlugin {
 
 		$columns = array_merge($columns, [
 			__('section.title'),
+			__('category.category'),
 			__('common.language'),
 			__('article.coverage'),
 			__('submission.rights'),
@@ -270,7 +287,6 @@ class ArticleReportPlugin extends ReportPlugin {
 			}
 			fputcsv($fp, $row);
 		}
-
 		fclose($fp);
 	}
 
